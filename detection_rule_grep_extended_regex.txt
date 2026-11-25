@@ -1,0 +1,1 @@
+(Invalid user|Failed password|new user: name=.*UID=0|COMMAND=.*(apt update|/etc/shadow))

@@ -1,0 +1,31 @@
+title: Suspicious User Creation and Privilege Escalation Activity
+id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+status: experimental
+description: Detects the creation of a new user with UID 0 (root privileges) and suspicious sudo usage patterns indicative of privilege escalation or backdoor installation.
+author: Detection Engineer
+date: 2023-10-27
+logsource:
+  category: process_creation
+  product: linux
+  service: syslog
+detection:
+  selection_useradd:
+    event_type: useradd
+    'new user':
+      - 'name=svc_backdoor'
+      - 'UID=0'
+  selection_sudo_shadow:
+    sudo:
+      - 'COMMAND=/bin/cat /etc/shadow'
+      - 'COMMAND=cat /etc/shadow'
+  condition: selection_useradd or selection_sudo_shadow
+falsepositives:
+  - Legitimate administrative tasks creating root users (rare)
+  - Authorized security audits
+level: high
+tags:
+  - attack.persistence
+  - attack.privilege_escalation
+  - attack.defense_evasion
+  - attack.t1136
+  - attack.t1078

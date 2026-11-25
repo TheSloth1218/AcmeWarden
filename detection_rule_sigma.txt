@@ -1,0 +1,24 @@
+title: SSH Brute Force and Privilege Escalation Activity
+id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+status: experimental
+description: Detects SSH brute force attempts followed by suspicious sudo usage or creation of privileged backdoor accounts.
+author: Detection Engineer
+date: 2023-10-27
+logsource:
+  category: authentication
+  product: unix
+  service: syslog
+detection:
+  selection_ssh_fail:
+    - 'sshd': 'Failed password*'
+    - 'sshd': 'Invalid user*'
+  selection_sudo_shadow:
+    - 'sudo': '*COMMAND=/bin/cat /etc/shadow'
+    - 'sudo': '*COMMAND=/usr/bin/apt update'
+  selection_backdoor_user:
+    - 'useradd': 'new user: name=*, UID=0, GID=0'
+  condition: selection_ssh_fail and (selection_sudo_shadow or selection_backdoor_user)
+falsepositives:
+  - Legitimate administrative testing
+  - Scheduled backup scripts using invalid users (rare)
+level: high
